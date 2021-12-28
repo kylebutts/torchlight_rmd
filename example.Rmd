@@ -1,5 +1,5 @@
 ---
-title: ""
+pagetitle: "Torchlight + Rmd"
 output:
   html_document:
     theme: null
@@ -38,7 +38,7 @@ knitr::opts_chunk$set(
 
 <div class="prose prose-invert lg:prose-lg  mx-auto my-8">
 
-# Torchlight.dev demo
+# Torchlight Syntax Highlighter
 
 [Torchlight.dev](https://torchlight.dev) is an api that styles code using the underlying VSCode code highlighting implementation. However, it also adds a whole new toolset that allows for beautiful syntax highlighting including
 
