@@ -1,0 +1,417 @@
+---
+title: ""
+output:
+  html_document:
+    theme: null
+    highlight: null
+---
+
+```{r setup, include = F}
+
+# Important to include lang- class name for torchlight
+knitr::knit_hooks$set(source = function(x, options) { 
+	# print(tolower(options$engine))
+	lang <- options$engine
+	as.character(
+		glue::glue('\n<pre><code class="lang-{options$engine}">{paste(x, collapse="\n")}</code></pre>')
+	)
+})
+
+# Allows styling output as plain text
+knitr::knit_hooks$set(output = function(x, options) { 
+	# print(tolower(options$engine))
+	lang <- options$engine
+	as.character(
+		glue::glue('<pre><code>// torchlight! {{"lineNumbers": false}}\n{x}</code></pre>')
+	)
+})
+
+knitr::opts_chunk$set(
+	# Hold results to end of code chunk so that code is not interspersed 
+	# with output.
+	results = "hold"	
+)
+
+```
+
+<link href="output.css" rel="stylesheet">
+
+<div class="prose prose-invert lg:prose-lg  mx-auto my-8">
+
+# Torchlight.dev demo
+
+[Torchlight.dev](https://torchlight.dev) is an api that styles code using the underlying VSCode code highlighting implementation. However, it also adds a whole new toolset that allows for beautiful syntax highlighting including
+
+- highlighting lines
+- focusing lines
+- git-style diffs
+- collapsing of code 
+- custom css classes for lines
+- embedded links
+
+The best part is you can **use any theme from VSCode to highlight your code chunks**.
+
+The way that torchlight accomplishes this is by using commends in whatever language you are writing in. For R that means using "#" comments. The full documentation is available on [their site](https://torchlight.dev/docs), but for an overview.
+
+"Commands" are produced in-line with the following syntax `# [tl! COMMAND]` where the `[tl! ]` indicates that it is a TorchLight command and `COMMAND` is the underlying command. This part of the comment can appear anywhere in a comment and torchlight is smart enough to find it for you, so can come after an actual written comment.
+
+The following examples will explain specific `COMMAND`s, but there is an additional syntax that lets you select which lines you want the command to act on. To accomplish this you use `# [tl! COMMAND:LINES]` where `LINES` determines which lines to apply the `COMMAND` to. For instance, here are different ways  how to apply highlighting to multiple lines.
+
+```{r, eval = F}
+- highlight          -- This line only
+
+- highlight:start    -- The start of an open ended range
+- highlight:end      -- The end of an open ended range
+
+- highlight:10       -- This line, and the 10 following lines
+- highlight:-10      -- This line, and the 10 preceding lines
+
+- highlight:1,10     -- Start one line down, highlight 10 lines total
+- highlight:-1,10    -- Start one line up, highlight 10 lines total
+```
+
+
+But, it's much easier to just see some examples. The source code for creating them is shown for illustrative purposes. Below the examples, I'll show you how to actually use torchlight :-)
+
+
+## Highlight Code 
+
+Use command `#[tl! highlight]`
+
+<div class="p-4">
+
+**Source Code:**
+```{r, results = 'hide'}
+# torchlight! {"torchlightAnnotations": false}
+print("hello")        
+summary(mtcars)
+
+# Summarize mtcars [tl! highlight:2]
+mean(mtcars$mpg) 
+mean(mtcars$mpg, na.rm = T) 
+```
+
+**Output:**
+```{r, results = 'hide'}
+print("hello")        
+summary(mtcars)
+
+# Summarize mtcars [tl! highlight:2]
+mean(mtcars$mpg) 
+mean(mtcars$mpg, na.rm = T) 
+```
+
+</div>
+
+## Focus Code 
+
+Use command `#[tl! focus]`
+
+<div class="p-4">
+
+**Source Code:**
+```{r, results = 'hide'}
+# torchlight! {"torchlightAnnotations": false}
+print("hello")        
+summary(mtcars)
+
+# Summarize mtcars
+mean(mtcars$mpg) # [tl! focus]
+```
+
+**Output:**
+```{r, results = 'hide'}
+
+print("hello")        
+summary(mtcars)
+
+# Summarize mtcars
+mean(mtcars$mpg) # [tl! focus]
+```
+
+</div>
+
+
+## Git differences 
+
+Use command `#[tl! ++/--]`
+
+<div class="p-4">
+
+**Source Code:**
+```{r, results = 'hide'}
+# torchlight! {"torchlightAnnotations": false}
+print("hello")        
+summary(mtcars)
+
+# Summarize mtcars
+mean(mtcars$mpg) # [tl! --]
+mean(mtcars$mpg, na.rm = T) # [tl! ++]
+```
+
+**Output:**
+```{r, results = 'hide'}
+print("hello")        
+summary(mtcars)
+
+# Summarize mtcars
+mean(mtcars$mpg) # [tl! --]
+mean(mtcars$mpg, na.rm = T) # [tl! ++]
+```
+
+</div>
+
+## Collapse Code 
+
+Use command `#[tl! collapse]`
+
+<div class="p-4">
+
+**Source Code:**
+```{r, results = 'hide'}
+# torchlight! { "torchlightAnnotations": false}
+compute_mean <- function(var) { # [tl! collapse:start]
+    # Do stuff
+    
+    # ... Do more stuff
+
+    return(mean(var, na.rm = T)) # [tl! collapse:end]
+} 
+    
+# Summarize mtcars
+compute_mean(mtcars$mpg) 
+
+```
+
+**Output:**
+```{r, results = 'hide'}
+compute_mean <- function(var) { # [tl! collapse:start]
+    # Do stuff
+    
+    # ... Do more stuff
+
+    return(mean(var, na.rm = T)) # [tl! collapse:end]
+} 
+    
+# Summarize mtcars
+compute_mean(mtcars$mpg) 
+
+```
+
+</div>
+
+## Custom Classes 
+
+Use command `#[tl! .class-name]`
+
+<div class="p-4">
+
+**Source Code:**
+```{r, results = 'hide'}
+# torchlight! { "torchlightAnnotations": false}
+print("hello")        
+summary(mtcars)
+
+# Add TailwindCSS class `.animate-pulse`
+# Summarize mtcars [tl! .animate-pulse:2]
+mean(mtcars$mpg) 
+mean(mtcars$mpg, na.rm = T) 
+```
+
+**Output:**
+```{r, results = 'hide'}
+
+print("hello")        
+summary(mtcars)
+
+# Add TailwindCSS class `.animate-pulse`
+# Summarize mtcars [tl! .animate-pulse:2]
+mean(mtcars$mpg) 
+mean(mtcars$mpg, na.rm = T) 
+```
+
+</div>
+
+## Add Links 
+
+Use command `#[tl! autolink]`
+
+<div class="p-4">
+
+**Source Code:**
+
+```{r, results = 'hide'}
+# torchlight! { "torchlightAnnotations": false}
+print("hello")
+summary(mtcars)
+
+# Summarize mtcars
+mean(mtcars$mpg) 
+mean(mtcars$mpg, na.rm = T) 
+
+# @see https://github.com/tidyverse/dplyr/ [tl! autolink]
+mtcars |> dplyr::summarize(mean_mpg = mean(mpg))
+```
+
+
+**Output:**
+```{r, results = 'hide'}
+
+print("hello")
+summary(mtcars)
+
+# Summarize mtcars
+mean(mtcars$mpg) 
+mean(mtcars$mpg, na.rm = T) 
+
+# @see https://github.com/tidyverse/dplyr/ [tl! autolink]
+mtcars |> dplyr::summarize(mean_mpg = mean(mpg))
+```
+
+</div>
+
+# How to use Torchlight (or, an intro to node build tools)
+
+*The source code is available [here](here).*
+
+## Setup Torchlight
+
+Like most HTML tools, Torchlight is written in javascript so there's not an easy way to use these functions within the Rmd knitting process. However, `node.js` includes powerful build tools that make post-processing html very simple. To begin, you must have [install node](https://nodejs.org/en/) on your computer. To make sure you installed node correctly, type `npm --version` into your terminal and it should print out a version number.
+
+1. With Node installed, you should navigate in your terminal to your projects root folder. To initialize your build tools, you can type `npm init`. The `npm` stands for "node project manager" and `init` for "initialize". It will ask you a series of questions, most of which you can skip besides "name" and "version". This process will make a file called `package.json` which is where you will set up your build tools. 
+
+1. Next you have to install torchlight in this directory by typing `npm install @torchlight-api/torchlight-cli`. Take a look at `pacakge.json` and you should see it is updated and notes the dependency on torchlight. 
+
+1. Now, we have to set up our torchlight settings. You can initialize the settings with `npx torchlight init`. This should create the file `torchlight.config.js`. The first field is "token" which requires you to sign-up on their website and download an API token. Copy and paste your token into this field after signing up on [torchlight.dev](https://torchlight.dev). Then, you can choose a color theme. All the available options are [here](https://torchlight.dev/docs/themes).
+
+1. You can manually run torchlight with the command `npx torchlight` and it will use the settings you have defined in `torchlight.config.js`, but it is a bit annoying to manually run this everytime you update your html file. It would be better for it to run automatically. To do that, you can run `npx torchlight --watch` where the `--watch` flag will run torchlight every time you update any `.html` files. 
+
+## Setup .Rmd
+
+To get `.Rmd` to produce an html file that works nicely with torchlight, I have wrote custom knit_hooks to produce source code and output in the correct html format. You should copy these into your setup code chunk. The last part of the code sets globally the option or `results = 'hold'` which merely holds all R output to the end of the code block instead of interspersing results throughout. I prefer this, but perhaps you do not :-)
+
+
+```{r, eval = F}
+
+# Important to include lang- class name for torchlight
+knitr::knit_hooks$set(source = function(x, options) { 
+	# print(tolower(options$engine))
+	lang <- options$engine
+	as.character(
+		glue::glue('\n<pre><code class="lang-{options$engine}">{paste(x, collapse="\n")}</code></pre>')
+	)
+})
+
+# Allows styling output as plain text
+knitr::knit_hooks$set(output = function(x, options) { 
+	# print(tolower(options$engine))
+	lang <- options$engine
+	as.character(
+		glue::glue('<pre><code>// torchlight! {{"lineNumbers": false}}\n{x}</code></pre>')
+	)
+})
+
+knitr::opts_chunk$set(
+	# Hold results to end of code chunk so that code is not interspersed 
+	# with output.
+	results = "hold"	
+)
+
+```
+
+The last step is to disable highlight.js (the default syntax highlighter) by adding the option `highlight: null` to your `.Rmd` yaml.
+
+
+## Styling your torchlight output
+
+A lot of the styling will be done automatically by torchlight via inline-styles, however there are a few pieces of css that need to be included in your `.Rmd` to get the focus and collapse commands to work.
+
+```{css}
+/* Focus Code */
+
+/* Blur lines that don't have .line-focus */
+
+.torchlight.has-focus-lines .line:not(.line-focus) {
+  filter:blur(.095rem);
+  opacity:.4;
+  transition:filter .35s,opacity .35s
+}
+
+/* Do not blur lines with .line-focus and on hover */
+
+.torchlight.has-focus-lines:hover .line:not(.line-focus) {
+  filter:blur(0);
+  opacity:1
+}
+
+.torchlight summary:focus {
+  outline:none
+}
+
+/* Collapse Code */
+
+.torchlight summary:focus {
+  outline: none;
+}
+
+/* Hide the default markers, as we provide our own */
+
+.torchlight details > summary::marker,
+.torchlight details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.torchlight details .summary-caret::after {
+  pointer-events: none;
+}
+
+/* Add spaces to keep everything aligned */
+
+.torchlight .summary-caret-empty::after,
+.torchlight details .summary-caret-middle::after,
+.torchlight details .summary-caret-end::after {
+  content: " ";
+}
+
+/* Show a minus sign when the block is open. */
+
+.torchlight details[open] .summary-caret-start::after {
+  content: "-";
+}
+
+/* And a plus sign when the block is closed. */
+
+.torchlight details:not([open]) .summary-caret-start::after {
+  content: "+";
+}
+
+/* Hide the [...] indicator when open. */
+
+.torchlight details[open] .summary-hide-when-open {
+  display: none;
+}
+
+/* Show the [...] indicator when closed. */
+
+.torchlight details:not([open]) .summary-hide-when-open {
+  display: initial;
+}
+```
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+

@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* Black bg for prose */
+body {
+	@apply bg-zinc-900;
+}
+
+/* Prettier Code Chunks */
+.torchlight {
+    @apply my-4 py-4 rounded-xl shadow-md overflow-auto border border-gray-100/60;
+}
+.torchlight .line {
+    @apply px-4;
+}
+.torchlight .line-number {
+    @apply mr-4 border-l-4 border-l-transparent;
+}
+.torchlight-link {
+    @apply underline decoration-[#8fbcbb] decoration-2;
+}
+.summary-hide-when-open {
+    @apply underline decoration-[#8fbcbb] decoration-2;
+}
+.summary-caret-start {
+    @apply mr-2 after:underline after:decoration-[#8fbcbb] after:decoration-2;
+}
+
+/* Focus Code */
+
+/* Blur lines that don't have .line-focus */
+.torchlight.has-focus-lines .line:not(.line-focus) {
+    filter:blur(.095rem);
+    opacity:.4;
+    transition:filter .35s,opacity .35s
+}
+/* Do not blur lines with .line-focus and on hover */
+.torchlight.has-focus-lines:hover .line:not(.line-focus) {
+filter:blur(0);
+opacity:1
+}
+.torchlight summary:focus {
+outline:none
+}
+
+/* Collapse Code */
+.torchlight summary:focus {
+    outline: none;
+}
+/* Hide the default markers, as we provide our own */
+.torchlight details > summary::marker,
+.torchlight details > summary::-webkit-details-marker {
+    display: none;
+}
+.torchlight details .summary-caret::after {
+    pointer-events: none;
+}
+/* Add spaces to keep everything aligned */
+.torchlight .summary-caret-empty::after,
+.torchlight details .summary-caret-middle::after,
+.torchlight details .summary-caret-end::after {
+    content: " ";
+}
+/* Show a minus sign when the block is open. */
+.torchlight details[open] .summary-caret-start::after {
+    content: "-";
+}
+/* And a plus sign when the block is closed. */
+.torchlight details:not([open]) .summary-caret-start::after {
+    content: "+";
+}
+/* Hide the [...] indicator when open. */
+.torchlight details[open] .summary-hide-when-open {
+    display: none;
+}
+/* Show the [...] indicator when closed. */
+.torchlight details:not([open]) .summary-hide-when-open {
+    display: initial;
+}
